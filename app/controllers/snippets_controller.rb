@@ -4,7 +4,28 @@ class SnippetsController < ApplicationController
   before_filter :correct_user, only:   [:edit, :update, :destroy]
 
   def index
-    @snippets = Snippet.all
+    snippets = Snippet.all
+
+    @snippets = Array.new
+
+    # Add first snippet to array
+    @snippets << snippets.shift
+
+    # Add each snippet one at a time if the user id  and language id are different from the last
+    while not snippets.empty?
+      added = false
+      snippets.delete_if do |snippet|
+        break if added
+        if snippet.user_id != @snippets.last.user_id && snippet.language_id != @snippets.last.language_id
+          @snippets << snippet
+          added = true
+        end
+      end
+      break if not added
+    end
+
+    # Add the rest of the snippets
+    @snippets << snippets if not snippets.empty?
   end
 
   def show
